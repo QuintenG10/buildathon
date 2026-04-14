@@ -1,29 +1,29 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import ImpactBitesCard from './ImpactBitesCard.vue'
+import { onMounted, ref } from "vue";
+import ImpactBitesCard from "./ImpactBitesCard.vue";
+import impactBitesImage from "../../assets/impact-bites.png";
 
 const impactData = ref({
   impactBitesTotal: 0,
-  impactImageUrl:
-    'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1200&q=80',
-  impactCaption: 'Each verified meal helps fund practical food support through local community partners.',
+  impactImageUrl: impactBitesImage,
+  impactCaption:
+    "Each verified meal helps fund practical food support through local community partners.",
   verifiedMealsCount: 0,
-})
+});
 
-const isLoading = ref(true)
+const isLoading = ref(true);
 
 function loadImpactData() {
   window.setTimeout(() => {
     impactData.value = {
       impactBitesTotal: 148,
-      impactImageUrl:
-        'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1200&q=80',
+      impactImageUrl: impactBitesImage,
       impactCaption:
-        'Verified meals are translated into visible support, from hot meals served to ingredient packs funded.',
+        "Verified meals are translated into visible support, from hot meals served to ingredient packs funded.",
       verifiedMealsCount: 9,
-    }
-    isLoading.value = false
-  }, 350)
+    };
+    isLoading.value = false;
+  }, 350);
 }
 
 function addVerifiedMeal() {
@@ -31,37 +31,16 @@ function addVerifiedMeal() {
     ...impactData.value,
     impactBitesTotal: impactData.value.impactBitesTotal + 12,
     verifiedMealsCount: impactData.value.verifiedMealsCount + 1,
-  }
+  };
 }
 
 onMounted(() => {
-  loadImpactData()
-})
+  loadImpactData();
+});
 </script>
 
 <template>
   <div class="bites-page">
-    <header class="bites-hero">
-      <div class="bites-hero__copy">
-        <p class="bites-hero__eyebrow">Impact Bites</p>
-        <h1>Make the token total feel tangible, not abstract.</h1>
-        <p>
-          This route turns verified meals into a simple impact story with one strong number, one
-          human image, and one clear explanation of what the user has contributed.
-        </p>
-      </div>
-
-      <div class="bites-hero__note">
-        <h2>MVP</h2>
-        <ul>
-          <li>Total bite count</li>
-          <li>Short explanation</li>
-          <li>Single impact image and caption</li>
-          <li>Live update when a verified meal lands</li>
-        </ul>
-      </div>
-    </header>
-
     <section class="bites-layout">
       <ImpactBitesCard v-bind="impactData" />
 
@@ -69,13 +48,13 @@ onMounted(() => {
         <p class="bites-sidecard__eyebrow">Demo controls</p>
         <h2>Simulate the dynamic update</h2>
         <p>
-          The card loads with fallback zero-state, then hydrates mock user impact data. Use the
-          action below to simulate a newly verified meal.
+          The card loads with fallback zero-state, then hydrates mock user
+          impact data. Use the action below to simulate a newly verified meal.
         </p>
 
         <div class="bites-sidecard__stats">
           <div>
-            <strong>{{ isLoading ? 'Loading...' : 'Loaded' }}</strong>
+            <strong>{{ isLoading ? "Loading..." : "Loaded" }}</strong>
             <span>data state</span>
           </div>
           <div>
@@ -84,7 +63,12 @@ onMounted(() => {
           </div>
         </div>
 
-        <button type="button" class="bites-action" :disabled="isLoading" @click="addVerifiedMeal">
+        <button
+          type="button"
+          class="bites-action"
+          :disabled="isLoading"
+          @click="addVerifiedMeal"
+        >
           Add verified meal
         </button>
       </aside>
@@ -105,9 +89,21 @@ onMounted(() => {
   padding: 1.6rem;
   border-radius: 1.7rem;
   background:
-    radial-gradient(circle at top left, rgba(222, 111, 62, 0.16), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(73, 147, 111, 0.16), transparent 28%),
-    linear-gradient(180deg, rgba(255, 250, 243, 0.98) 0%, rgba(251, 243, 232, 0.98) 100%);
+    radial-gradient(
+      circle at top left,
+      rgba(222, 111, 62, 0.16),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(73, 147, 111, 0.16),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 250, 243, 0.98) 0%,
+      rgba(251, 243, 232, 0.98) 100%
+    );
   border: 1px solid rgba(91, 68, 40, 0.08);
   box-shadow: 0 24px 44px rgba(81, 61, 34, 0.08);
 }

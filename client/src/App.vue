@@ -1,89 +1,107 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import HomeExperience from './components/HomeExperience.vue'
-import BitesPage from './components/bites/BitesPage.vue'
-import PlatePage from './components/plate/PlatePage.vue'
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import HomeExperience from "./components/HomeExperience.vue";
+import RestaurantAdminPage from "./components/RestaurantAdminPage.vue";
+import BitesPage from "./components/bites/BitesPage.vue";
+import PlatePage from "./components/plate/PlatePage.vue";
 
 const route = ref({
   path: window.location.pathname,
   search: window.location.search,
   state: window.history.state,
-})
+});
 
 function syncRoute() {
   route.value = {
     path: window.location.pathname,
     search: window.location.search,
     state: window.history.state,
-  }
+  };
 }
 
 function navigate(to, state = null) {
-  window.history.pushState(state, '', to)
-  syncRoute()
+  window.history.pushState(state, "", to);
+  syncRoute();
 }
 
 const currentView = computed(() => {
-  if (route.value.path === '/plate') {
-    return 'plate'
+  if (route.value.path === "/plate") {
+    return "plate";
   }
 
-  if (route.value.path === '/bites') {
-    return 'bites'
+  if (route.value.path === "/bites") {
+    return "bites";
   }
 
-  return 'home'
-})
+  if (route.value.path === "/admin") {
+    return "admin";
+  }
+
+  return "home";
+});
 
 const backTarget = computed(() => {
-  if (currentView.value === 'plate') {
-    return '/'
+  if (currentView.value === "plate") {
+    return "/";
   }
 
-  if (currentView.value === 'bites') {
-    return '/'
+  if (currentView.value === "bites") {
+    return "/";
   }
 
-  return '/'
-})
+  if (currentView.value === "admin") {
+    return "/";
+  }
+
+  return "/";
+});
 
 const backLabel = computed(() => {
-  if (currentView.value === 'plate') {
-    return 'Back to home'
+  if (currentView.value === "plate") {
+    return "Back to home";
   }
 
-  if (currentView.value === 'bites') {
-    return 'Back to home'
+  if (currentView.value === "bites") {
+    return "Back to home";
   }
 
-  return 'Back'
-})
+  if (currentView.value === "admin") {
+    return "Back to home";
+  }
+
+  return "Back";
+});
 
 onMounted(() => {
-  if (window.location.pathname === '/map') {
-    window.history.replaceState(window.history.state, '', '/')
-    syncRoute()
+  if (window.location.pathname === "/map") {
+    window.history.replaceState(window.history.state, "", "/");
+    syncRoute();
   }
 
-  window.addEventListener('popstate', syncRoute)
-})
+  window.addEventListener("popstate", syncRoute);
+});
 
 onUnmounted(() => {
-  window.removeEventListener('popstate', syncRoute)
-})
+  window.removeEventListener("popstate", syncRoute);
+});
 </script>
 
 <template>
   <div class="route-shell">
     <header class="route-topbar">
       <div class="route-topbar__group">
-        <button v-if="currentView !== 'home'" type="button" class="route-back" @click="navigate(backTarget)">
+        <button
+          v-if="currentView !== 'home'"
+          type="button"
+          class="route-back"
+          @click="navigate(backTarget)"
+        >
           ← {{ backLabel }}
         </button>
 
         <button type="button" class="route-brand" @click="navigate('/')">
-          <span class="route-brand__mark">bh</span>
-          <span>Buildathon Demo</span>
+          <span class="route-brand__mark">H2W</span>
+          <span>Health to Wealth</span>
         </button>
       </div>
 
@@ -107,6 +125,14 @@ onUnmounted(() => {
         <button
           type="button"
           class="route-nav__button"
+          :class="{ 'route-nav__button--active': currentView === 'admin' }"
+          @click="navigate('/admin')"
+        >
+          Admin
+        </button>
+        <button
+          type="button"
+          class="route-nav__button"
           :class="{ 'route-nav__button--active': currentView === 'bites' }"
           @click="navigate('/bites')"
         >
@@ -118,6 +144,7 @@ onUnmounted(() => {
     <main class="route-content">
       <HomeExperience v-if="currentView === 'home'" />
       <PlatePage v-else-if="currentView === 'plate'" :navigate="navigate" />
+      <RestaurantAdminPage v-else-if="currentView === 'admin'" />
       <BitesPage v-else />
     </main>
   </div>
@@ -128,8 +155,16 @@ onUnmounted(() => {
   min-height: 100vh;
   padding: 1.25rem;
   background:
-    radial-gradient(circle at top left, rgba(241, 185, 93, 0.16), transparent 25%),
-    radial-gradient(circle at bottom right, rgba(108, 165, 96, 0.16), transparent 22%),
+    radial-gradient(
+      circle at top left,
+      rgba(241, 185, 93, 0.16),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(108, 165, 96, 0.16),
+      transparent 22%
+    ),
     linear-gradient(180deg, #fffdf9 0%, #f8f2e8 100%);
 }
 
