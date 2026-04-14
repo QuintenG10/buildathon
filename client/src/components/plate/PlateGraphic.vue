@@ -1,6 +1,9 @@
 <script setup>
 import { computed } from 'vue'
 import { SECTION_CONFIG, SECTION_ORDER } from '../../lib/dietPlate'
+import grainsImage from '../../assets/grains.png'
+import meatImage from '../../assets/meat.png'
+import vegetablesImage from '../../assets/vegtebles.png'
 
 const props = defineProps({
   plate: {
@@ -17,6 +20,11 @@ const emit = defineEmits(['select-section'])
 
 const radius = 152
 const center = 180
+const sectionImages = {
+  protein: meatImage,
+  vegetables: vegetablesImage,
+  carbs: grainsImage,
+}
 
 function polarToCartesian(cx, cy, valueRadius, angleInDegrees) {
   const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180
@@ -46,6 +54,7 @@ const slices = computed(() => {
     const labelPoint = polarToCartesian(center, center, 98, midAngle)
     const slice = {
       ...SECTION_CONFIG[key],
+      image: sectionImages[key],
       value,
       path: buildArcPath(startAngle, endAngle),
       labelX: labelPoint.x,
@@ -68,13 +77,33 @@ const slices = computed(() => {
         A three section plate showing protein, vegetables, and carbohydrates with editable shares.
       </desc>
 
+      <defs>
+        <pattern
+          v-for="slice in slices"
+          :id="`plate-pattern-${slice.key}`"
+          :key="`pattern-${slice.key}`"
+          patternUnits="userSpaceOnUse"
+          width="360"
+          height="360"
+        >
+          <image
+            :href="slice.image"
+            x="0"
+            y="0"
+            width="360"
+            height="360"
+            preserveAspectRatio="xMidYMid slice"
+          />
+        </pattern>
+      </defs>
+
       <circle cx="180" cy="180" r="170" fill="#f7f1e7" />
       <circle cx="180" cy="180" r="160" fill="#fffdf8" stroke="#eadfce" stroke-width="6" />
 
       <g v-for="slice in slices" :key="slice.key">
         <path
           :d="slice.path"
-          :fill="slice.color"
+          :fill="`url(#plate-pattern-${slice.key})`"
           :class="['plate-slice', { 'plate-slice--active': slice.key === activeSection }]"
           :aria-label="`${slice.label} section, ${slice.value}% of plate`"
           role="button"
@@ -82,6 +111,13 @@ const slices = computed(() => {
           @click="emit('select-section', slice.key)"
           @keydown.enter.prevent="emit('select-section', slice.key)"
           @keydown.space.prevent="emit('select-section', slice.key)"
+        />
+        <path
+          :d="slice.path"
+          :fill="slice.color"
+          class="plate-slice-overlay"
+          :class="{ 'plate-slice-overlay--active': slice.key === activeSection }"
+          aria-hidden="true"
         />
         <text :x="slice.labelX" :y="slice.labelY - 10" class="plate-label">
           {{ slice.shortLabel }}
@@ -131,6 +167,15 @@ const slices = computed(() => {
   stroke-width: 4;
   transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
   transform-origin: 180px 180px;
+}
+
+.plate-slice-overlay {
+  pointer-events: none;
+  opacity: 0.34;
+}
+
+.plate-slice-overlay--active {
+  opacity: 0.2;
 }
 
 .plate-slice:hover,

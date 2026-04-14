@@ -4,6 +4,7 @@ import HomeExperience from "./components/HomeExperience.vue";
 import RestaurantAdminPage from "./components/RestaurantAdminPage.vue";
 import BitesPage from "./components/bites/BitesPage.vue";
 import PlatePage from "./components/plate/PlatePage.vue";
+import logoImage from "./assets/logo.png";
 
 const route = ref({
   path: window.location.pathname,
@@ -100,7 +101,7 @@ onUnmounted(() => {
         </button>
 
         <button type="button" class="route-brand" @click="navigate('/')">
-          <span class="route-brand__mark">H2W</span>
+          <img class="route-brand__logo" :src="logoImage" alt="Health to Wealth logo" />
           <span>Health to Wealth</span>
         </button>
       </div>
@@ -212,15 +213,10 @@ onUnmounted(() => {
   font-weight: 800;
 }
 
-.route-brand__mark {
-  display: grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #c96e2f 0%, #eba536 100%);
-  color: #fff;
-  text-transform: lowercase;
+.route-brand__logo {
+  display: block;
+  width: 3.1rem;
+  height: auto;
 }
 
 .route-nav {
