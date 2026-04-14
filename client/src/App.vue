@@ -3,7 +3,6 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import HomeExperience from './components/HomeExperience.vue'
 import BitesPage from './components/bites/BitesPage.vue'
 import PlatePage from './components/plate/PlatePage.vue'
-import PlateMapPage from './components/plate/PlateMapPage.vue'
 
 const route = ref({
   path: window.location.pathname,
@@ -29,10 +28,6 @@ const currentView = computed(() => {
     return 'plate'
   }
 
-  if (route.value.path === '/map') {
-    return 'map'
-  }
-
   if (route.value.path === '/bites') {
     return 'bites'
   }
@@ -41,10 +36,6 @@ const currentView = computed(() => {
 })
 
 const backTarget = computed(() => {
-  if (currentView.value === 'map') {
-    return '/plate'
-  }
-
   if (currentView.value === 'plate') {
     return '/'
   }
@@ -57,10 +48,6 @@ const backTarget = computed(() => {
 })
 
 const backLabel = computed(() => {
-  if (currentView.value === 'map') {
-    return 'Back to plate'
-  }
-
   if (currentView.value === 'plate') {
     return 'Back to home'
   }
@@ -73,6 +60,11 @@ const backLabel = computed(() => {
 })
 
 onMounted(() => {
+  if (window.location.pathname === '/map') {
+    window.history.replaceState(window.history.state, '', '/')
+    syncRoute()
+  }
+
   window.addEventListener('popstate', syncRoute)
 })
 
@@ -82,18 +74,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <template v-if="currentView === 'home'">
-    <HomeExperience />
-  </template>
-
-  <div v-else class="route-shell">
+  <div class="route-shell">
     <header class="route-topbar">
       <div class="route-topbar__group">
-        <button type="button" class="route-back" @click="navigate(backTarget)">
+        <button v-if="currentView !== 'home'" type="button" class="route-back" @click="navigate(backTarget)">
           ← {{ backLabel }}
         </button>
 
-        <button type="button" class="route-brand" @click="navigate('/plate')">
+        <button type="button" class="route-brand" @click="navigate('/')">
           <span class="route-brand__mark">bh</span>
           <span>Buildathon Demo</span>
         </button>
@@ -103,18 +91,18 @@ onUnmounted(() => {
         <button
           type="button"
           class="route-nav__button"
-          :class="{ 'route-nav__button--active': currentView === 'plate' }"
-          @click="navigate('/plate')"
+          :class="{ 'route-nav__button--active': currentView === 'home' }"
+          @click="navigate('/')"
         >
-          Plate
+          Home
         </button>
         <button
           type="button"
           class="route-nav__button"
-          :class="{ 'route-nav__button--active': currentView === 'map' }"
-          @click="navigate('/map')"
+          :class="{ 'route-nav__button--active': currentView === 'plate' }"
+          @click="navigate('/plate')"
         >
-          Meals map
+          Plate
         </button>
         <button
           type="button"
@@ -128,14 +116,9 @@ onUnmounted(() => {
     </header>
 
     <main class="route-content">
-      <PlatePage v-if="currentView === 'plate'" :navigate="navigate" />
-      <BitesPage v-else-if="currentView === 'bites'" />
-      <PlateMapPage
-        v-else
-        :navigate="navigate"
-        :route-state="route.state"
-        :search="route.search"
-      />
+      <HomeExperience v-if="currentView === 'home'" />
+      <PlatePage v-else-if="currentView === 'plate'" :navigate="navigate" />
+      <BitesPage v-else />
     </main>
   </div>
 </template>

@@ -15,7 +15,7 @@ function handleApply(payload) {
     needs: payload.selectedNeeds.join(','),
   })
 
-  props.navigate(`/map?${query.toString()}`, { payload })
+  props.navigate(`/?${query.toString()}`, { payload })
 }
 </script>
 
