@@ -27,6 +27,15 @@ const exclusions = [
   "MSG",
 ];
 
+const causes = [
+  { name: "Blue Dragon", focus: "Child protection and food access" },
+  { name: "KOTO", focus: "Hospitality training and youth support" },
+  {
+    name: "Da Nang Animal Rescue",
+    focus: "Meals and medical support for rescues",
+  },
+];
+
 const restaurants = [
   {
     id: 1,
@@ -149,7 +158,9 @@ const restaurants = [
   },
 ];
 
+const activeWorkspace = ref("discover");
 const selectedDiet = ref("High protein");
+const selectedCause = ref(causes[0].name);
 const selectedExclusions = ref(["Shellfish", "Added sugar"]);
 const selectedRestaurantId = ref(1);
 
@@ -158,6 +169,17 @@ const selectedRestaurant = computed(
     restaurants.find(
       (restaurant) => restaurant.id === selectedRestaurantId.value,
     ) ?? restaurants[0],
+);
+
+const publicListings = computed(() => restaurants.length);
+const claimedListings = computed(
+  () =>
+    restaurants.filter((restaurant) => restaurant.status === "claimed").length,
+);
+const promotedListings = computed(
+  () =>
+    restaurants.filter((restaurant) => restaurant.marketing === "promoted")
+      .length,
 );
 
 const toggleExclusion = (item) => {
@@ -206,10 +228,18 @@ const visibleRestaurants = computed(() => {
     .sort((left, right) => right.adjustedScore - left.adjustedScore);
 });
 
+const totalCredits = computed(() =>
+  restaurants.reduce((sum, restaurant) => sum + restaurant.monthlyCredits, 0),
+);
+
 const mapQuery = computed(() => {
-  return encodeURIComponent(
-    `${selectedRestaurant.value.name}, ${selectedRestaurant.value.area}, Vietnam`,
-  );
+  if (activeWorkspace.value === "discover") {
+    return encodeURIComponent(
+      `${selectedRestaurant.value.name}, ${selectedRestaurant.value.area}, Vietnam`,
+    );
+  }
+
+  return encodeURIComponent("Da Nang, Vietnam");
 });
 
 const googleMapsEmbedUrl = computed(
@@ -219,52 +249,86 @@ const googleMapsEmbedUrl = computed(
 
 <template>
   <div class="page-shell">
-    <!-- <header class="topbar">
-      <div class="brand">
-        <div class="brand__mark">hm</div>
-        <div>
-          <p class="brand__eyebrow">Healthy Map Vietnam</p>
-          <h1>
-            Imported from Overpass. Claimed by restaurants. Marketed through
-            your platform.
-          </h1>
-        </div>
-      </div>
-
-      <nav class="workspace-switch" aria-label="Workspace switcher">
-        <button
-          class="workspace-switch__button"
-          :class="{
-            'workspace-switch__button--active': activeWorkspace === 'discover',
-          }"
-          @click="activeWorkspace = 'discover'"
-        >
-          Expat frontend
-        </button>
-        <button
-          class="workspace-switch__button"
-          :class="{
-            'workspace-switch__button--active': activeWorkspace === 'admin',
-          }"
-          @click="activeWorkspace = 'admin'"
-        >
-          Restaurant admin
-        </button>
-      </nav>
-    </header> -->
-
     <main class="layout">
-      <section class="discover-layout">
+      <!-- <section class="hero">
+        <div class="hero__copy">
+          <p class="section-kicker">A closed-loop local impact model</p>
+          <h2>Expats find healthy places to eat. Local businesses gain visibility. Vulnerable communities benefit too.</h2>
+          <p class="hero__lede">
+            The platform turns eating out into a better local cycle: expats discover diet-friendly
+            restaurants, claimed businesses get marketing and repeat demand, and verified visits help
+            direct support toward people who feel the pressure of expat and tourism growth the most.
+          </p>
+
+          <div class="hero__actions">
+            <button class="primary-button" @click="activeWorkspace = 'discover'">View expat journey</button>
+            <button class="secondary-button" @click="activeWorkspace = 'admin'">View restaurant admin</button>
+          </div>
+
+          <div class="story-strip">
+            <article class="story-step">
+              <span class="story-step__number">01</span>
+              <div>
+                <strong>Expats eat with confidence</strong>
+                <p>Users filter by diet, exclusions, ingredients, and macros to find healthier places faster.</p>
+              </div>
+            </article>
+            <article class="story-step">
+              <span class="story-step__number">02</span>
+              <div>
+                <strong>Local restaurants get free marketing</strong>
+                <p>Claimed listings stand out on the map and reach diners who are actively looking for their offer.</p>
+              </div>
+            </article>
+            <article class="story-step">
+              <span class="story-step__number">03</span>
+              <div>
+                <strong>The upside flows back locally</strong>
+                <p>Verified visits generate Impact Credits that support causes helping communities under the most pressure.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero__stats">
+          <article class="stat-card">
+            <span class="stat-card__value">{{ publicListings }}</span>
+            <span class="stat-card__label">Public listings imported</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-card__value">{{ claimedListings }}</span>
+            <span class="stat-card__label">Claimed restaurants</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-card__value">{{ promotedListings }}</span>
+            <span class="stat-card__label">Promoted on-map listings</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-card__value">{{ totalCredits }}</span>
+            <span class="stat-card__label">Impact Credits this month</span>
+          </article>
+          <article class="loop-card">
+            <p class="section-kicker section-kicker--small">Closed circle</p>
+            <h3>Healthy discovery creates local revenue, and local revenue creates local support.</h3>
+            <p>
+              Better restaurant discovery leads to more verified visits. More verified visits lead
+              to more community impact. The more the platform grows, the more the local loop works.
+            </p>
+          </article>
+        </div>
+      </section> -->
+
+      <section v-if="activeWorkspace === 'discover'" class="discover-layout">
         <aside class="filters-panel">
           <div class="panel-head">
             <p class="section-kicker">Expat frontend</p>
-            <h3>Filter by diet</h3>
+            <h3>Find diet-friendly places quickly</h3>
           </div>
 
-          <!-- <label class="search-field">
+          <label class="search-field">
             <span>Search place or district</span>
             <input type="text" value="Da Nang" />
-          </label> -->
+          </label>
 
           <div class="field-group">
             <span class="field-label">Diet</span>
@@ -296,13 +360,13 @@ const googleMapsEmbedUrl = computed(
             </div>
           </div>
 
-          <!-- <div class="panel-note">
+          <div class="panel-note">
             <strong>Visibility rule</strong>
             <p>
               Users only see claimed restaurants in the main discovery layer.
               Imported but unclaimed places stay out of promoted search.
             </p>
-          </div> -->
+          </div>
         </aside>
 
         <section class="map-panel">
@@ -348,7 +412,7 @@ const googleMapsEmbedUrl = computed(
             </div>
           </div>
 
-          <!-- <div class="listing-grid">
+          <div class="listing-grid">
             <article
               v-for="restaurant in visibleRestaurants"
               :key="restaurant.id"
@@ -388,11 +452,11 @@ const googleMapsEmbedUrl = computed(
                 <span>{{ restaurant.confidence }}</span>
               </div>
             </article>
-          </div> -->
+          </div>
         </section>
       </section>
 
-      <!-- <section class="detail-layout">
+      <section v-if="activeWorkspace === 'discover'" class="detail-layout">
         <article class="detail-card detail-card--primary">
           <div class="panel-head panel-head--row">
             <div>
@@ -502,7 +566,7 @@ const googleMapsEmbedUrl = computed(
         </article>
       </section>
 
-      <section class="admin-layout">
+      <section v-if="activeWorkspace === 'admin'" class="admin-layout">
         <article class="detail-card detail-card--primary">
           <div class="panel-head panel-head--row">
             <div>
@@ -612,7 +676,7 @@ const googleMapsEmbedUrl = computed(
             </div>
           </div>
         </article>
-      </section> -->
+      </section>
     </main>
   </div>
 </template>
